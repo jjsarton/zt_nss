@@ -1,7 +1,9 @@
 # NSS_ZT
 
 Nss_zt allow you to enter the name of an zerotier node name instead of
-the IPv4 adsress.
+the IPv4 address. You may also retrieve the host name for a given IPv4 address.
+
+Subdomains are supported. If you ask for example ``www.alice.zt`` you will always return the IPv4 Address of ```alice.zt```.
 
 This will work for UNIX like systems which use nsswtich. See man
 nsswitch.conf
@@ -36,7 +38,6 @@ This file must be created and contain some important data requiered by the serve
 
 ```
 [nss]
-	timeout = 600
 	token	= <API Access Tokens>
 	net		= <Network ID>
 ```
@@ -54,25 +55,37 @@ This allow you to connect to 'alice' or 'bob' according to there official networ
 
 ## Launching the daemon
 The daemon zt.py will be started by simply calling zt.py.
-It detach it from the terminal.
+It detach it from the terminal. You may also pass parameters
+
+```
+usage: zt.py [-h] [-p PID_FILE] [-c CONFIG_FILE] [-t TIMEOUT] [-f] [-d] [-v]
+
+Zerotier DNS server
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PID_FILE, --pid-file PID_FILE
+  -c CONFIG_FILE, --config-file CONFIG_FILE
+  -t TIMEOUT, --timeout TIMEOUT
+  -f, --foreground
+  -d, --debug
+  -v, --version
+
+```
+The default value for the config file is '/etc/zt.conf'.
+
+The default timeout (the list of node will be refreshed if an timeout occur) is set to 600 (5 Minutes).
+
+The name of the pid file is '/tmp/zt.pid' and can be modified.
+
+Debuging (-d) is performed into the file '/tmp/zt.txt' and **/tmp/zterr.txt if not launched in foreground.
+
+If you enter the option -v you will get the version number
+(really the date as YYYYMMDD) and zt.py will exit.
 
 ## Stopping the daemon
-At this time you must issue:
 
-```
-ps -elf | grep zt.py
-```
-and then killing it with
-
-```
-kill -9 <pid>
-```
-
-The following command will to the job of stopping the daemon:
-
-```
-ps -ef|grep zt.py|grep python|awk '{if($2!=""){system("kill -9 "$2)}}'
-```
+If running in forground you may press '[Ctrl]+[c]' or issue the command ```pkill zt.py```
 
 ## Communication between server and library file
 
@@ -86,7 +99,6 @@ There is probably a bug (within python 3) which may produce a segment violation 
 ## Todo
 
 * Process IPv6 (at this time no address is passed from the data send by my.zerotier.com)
-* Improve zt.py regarding daemon properties
 * Better documentation
 * Provide systemd files.
 

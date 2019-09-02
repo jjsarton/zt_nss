@@ -1,9 +1,9 @@
-# NSS_ZT
+# ZT_NSS
 
 Nss_zt allow you to enter the name of an zerotier node name instead of
 the IPv4 address. You may also retrieve the host name for a given IPv4 address.
 
-Subdomains are supported. If you ask for example ``www.alice.zt`` you will always return the IPv4 Address of ```alice.zt```.
+Sub-domains are supported. If you ask for example ``www.alice.zt`` you will always return the IPv4 Address of ```alice.zt```.
 
 This will work for UNIX like systems which use nsswtich. See man
 nsswitch.conf
@@ -19,16 +19,8 @@ There is an other server (*ztr.py*) which will contact the *zt.py* server via TC
 
 ## Installation
 
-You have to compile the library, simply enter the src directory and
+You have to compile the library, simply enter the zt_nss directory and
 issue as root: ```make install```
-
-Depending of you need (main ZT server or slave server) you can issue the command:
- 
-``` make install-zt```
-
-or
-
-``` make install-ztr```
 
 
 For both server you have to edit the file */etc/nsswitch.conf*
@@ -46,7 +38,7 @@ hosts:      files zt mdns4_minimal [NOTFOUND=return] dns myhostname
 
 ### Configuration File /etc/zt.conf
 
-This file must be created and contain some important data requiered by the **zt.py** server
+This file must be created and contain some important data required by the **zt.py** server
 
 ```
 [nss]
@@ -113,17 +105,40 @@ The default timeout (the list of node will be refreshed if an timeout occur) is 
 
 The name of the pid file is '/tmp/zt.pid' and can be modified.
 
-Debuging (-d) is performed into the file '/tmp/zt.txt' and **/tmp/zterr.txt if not launched in foreground.
+Debugging (-d) is performed into the file '/tmp/zt.txt' and **/tmp/zterr.txt if not launched in foreground.
 
 If you enter the option -v you will get the version number
 (really the date as YYYYMMDD) and zt.py will exit.
 
-The parameter -b and -P are for setting the TCP connection betwenn the main server **zt.py** and the slave **ztr.py**.
+The parameter -b and -P are for setting the TCP connection between the main server **zt.py** and the slave **ztr.py**.
 The default port is 9999. The bind address must be set to the IPv4 Address of the ZT interface from the main server.
 
 ## Stopping the daemon
 
-If running in forground you may press '[Ctrl]+[c]' or issue the command ```pkill zt.py``` or ```pkill ztr.py```
+If running in foreground you may press '[Ctrl]+[c]' or issue the command ```pkill zt.py``` or ```pkill ztr.py```
+
+## Systemd Units
+
+The file **ztr.services** and **zt.service** will be installed under
+```/etc/systemd/system```.
+
+You must provide a file ```/etc/zt/``` whith at last the line
+
+```
+OPT=""
+```
+The OPT variable shall contain the command line parameters for starting the daemon via systemd eg:
+
+```
+OPT="-b 10.1.2.3 -p 5678"
+```
+
+After editing the file according to your requirements you can call ```systemctl reload-daemon``` and then enable and start the wanted service eg:
+
+```
+systemctl enable ztr.services
+systemctl start ztr.services
+```
 
 ## Communication between server and library file
 
@@ -132,20 +147,20 @@ if the socket is not present or the server is not running, the library file will
 
 ## Requirement
 * python 3
-* python-daemon mudule (may not be installed)
+* python-daemon module (may not be installed)
 
-The main Server may be installed on a lowcost device as the Raspberry PI.  
-I habe installed it on a Raspberry PI 3, this worket out of the box after launching the **zt.py** server on it. The other Linux devices what run with **ztr.py**.
+The main Server may be installed on a low cost device as the Raspberry PI.  
+I have installed it on a Raspberry PI 3, this worked out of the box after launching the **zt.py** server on it. The other Linux devices what run with **ztr.py**.
 
 ## Bug
 
-There is probably a bug (within python 3) which may produce a segment violation while calling ```dnf install <package>```.
+There is probably a bug (within python 3) which may produce a segment violation while calling ```dnf install python3-daemon``` (fedora) or ```apt install python3-daemon``` (Debian, Ubuntu, Mint) . For other distributions refer to the respective documents
 
 ## Todo
 
 * Process IPv6 (at this time no address is passed from the data send by my.zerotier.com)
 * Better documentation
-* Provide systemd files.
+
 
 
 

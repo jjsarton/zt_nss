@@ -1,0 +1,12 @@
+[Unit]
+Description=Zerotier Slave DNS server
+After=multi-user.target
+
+[Service]
+Type=simple
+PIDFile=/tmp/zt.pid
+EnvironmentFile=/etc/zt
+ExecStart=/usr/bin/ztr.py $OPT
+
+[Install]
+WantedBy=multi-user.target

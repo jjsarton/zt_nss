@@ -20,7 +20,12 @@ install: libnss_zt.so.2 zt.py
 	else \
 		cp $(CURDIR)/libnss_zt.so.2 /usr/lib;\
 	fi
+
+install-zt:
 	@cp zt.py /usr/bin/; chmod a+x /usr/bin/ zt.py
+
+install-ztr:
+	@cp ztr.py /usr/bin/; chmod a+x /usr/bin/ ztr.py
 
 uninstall:
 	@if [ -d /usr/lib64 ]; then \
@@ -28,4 +33,4 @@ uninstall:
 	else \
 		rm /usr/lib64/libnss_zt.so.2; \
 	fi
-	@rm /usr/bin/zt.py
+	@rm /usr/bin/zt*.py

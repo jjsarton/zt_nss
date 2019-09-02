@@ -15,11 +15,23 @@ and be used by nsswitch and a little server (zt.py) which collect the
 data from my.zerotier.com and return the IpV4 addresses for the queried
 system if it is online and of course exists.
 
+There is an other server (*ztr.py*) which will contact the *zt.py* server via TCP. This allows to have only one central server collecting the data from the my.zerotier.com server.
+
 ## Installation
 
 You have to compile the library, simply enter the src directory and
-issue as root: ```make install``` 
+issue as root: ```make install```
 
+Depending of you need (main ZT server or slave server) you can issue the command:
+ 
+``` make install-zt```
+
+or
+
+``` make install-ztr```
+
+
+For both server you have to edit the file */etc/nsswitch.conf*
 
 Within the line which will look like
 
@@ -34,7 +46,7 @@ hosts:      files zt mdns4_minimal [NOTFOUND=return] dns myhostname
 
 ### Configuration File /etc/zt.conf
 
-This file must be created and contain some important data requiered by the server
+This file must be created and contain some important data requiered by the **zt.py** server
 
 ```
 [nss]
@@ -42,10 +54,8 @@ This file must be created and contain some important data requiered by the serve
 	net		= <Network ID>
 ```
 
-Timeout is for refreshing of the internal database of the server zt.py and ist the amount of seconds betwenn 2 queries.
-Without the token and the network IS you will not be able to
-get informations about the systems included in your zerotier
-network.
+For **ztr.py** a configuration file is not necessary.
+
 
 ### Zerotier System Naming
 In order to work properly the name of the systems within the 
@@ -57,8 +67,13 @@ This allow you to connect to 'alice' or 'bob' according to there official networ
 The daemon zt.py will be started by simply calling zt.py.
 It detach it from the terminal. You may also pass parameters
 
+* zt.py
+
+
 ```
-usage: zt.py [-h] [-p PID_FILE] [-c CONFIG_FILE] [-t TIMEOUT] [-f] [-d] [-v]
+
+usage: zt.py [-h] [-p PID_FILE] [-c CONFIG_FILE] [-t TIMEOUT] [-f] [-d]
+             [-b BIND] [-P PORT] [-v]
 
 Zerotier DNS server
 
@@ -69,9 +84,29 @@ optional arguments:
   -t TIMEOUT, --timeout TIMEOUT
   -f, --foreground
   -d, --debug
+  -b BIND, --bind BIND
+  -P PORT, --port PORT
   -v, --version
 
 ```
+* ztr.py
+
+```
+usage: ztr.py [-h] [-p PID_FILE] [-f] [-d] [-v] [-b BIND] [-P PORT]
+
+Zerotier DNS Client
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PID_FILE, --pid-file PID_FILE
+  -f, --foreground
+  -d, --debug
+  -v, --version
+  -b BIND, --bind BIND
+  -P PORT, --port PORT
+
+```
+
 The default value for the config file is '/etc/zt.conf'.
 
 The default timeout (the list of node will be refreshed if an timeout occur) is set to 600 (5 Minutes).
@@ -83,14 +118,24 @@ Debuging (-d) is performed into the file '/tmp/zt.txt' and **/tmp/zterr.txt if n
 If you enter the option -v you will get the version number
 (really the date as YYYYMMDD) and zt.py will exit.
 
+The parameter -b and -P are for setting the TCP connection betwenn the main server **zt.py** and the slave **ztr.py**.
+The default port is 9999. The bind address must be set to the IPv4 Address of the ZT interface from the main server.
+
 ## Stopping the daemon
 
-If running in forground you may press '[Ctrl]+[c]' or issue the command ```pkill zt.py```
+If running in forground you may press '[Ctrl]+[c]' or issue the command ```pkill zt.py``` or ```pkill ztr.py```
 
 ## Communication between server and library file
 
 The communication occur via a UNIX socket. The file name is '/tmp/zt.sock'
 if the socket is not present or the server is not running, the library file will return ```NSS_STATUS_NOTFOUND``` to the resolver and the next resolver module will be processed.
+
+## Requirement
+* python 3
+* python-daemon mudule (may not be installed)
+
+The main Server may be installed on a lowcost device as the Raspberry PI.  
+I habe installed it on a Raspberry PI 3, this worket out of the box after launching the **zt.py** server on it. The other Linux devices what run with **ztr.py**.
 
 ## Bug
 

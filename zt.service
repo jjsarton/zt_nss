@@ -4,8 +4,8 @@ After=multi-user.target
 
 [Service]
 Type=simple
-PIDFile=/tmp/zt.pid
-EnvironmentFile=/etc/zt
+PIDFile=/var/run/zt.pid
+EnvironmentFile=/etc/zt_nss/zt
 ExecStart=/usr/bin/zt.py $OPT
 
 [Install]

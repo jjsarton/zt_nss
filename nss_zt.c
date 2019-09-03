@@ -12,7 +12,7 @@
 #include <ctype.h>
 
 // declarations
-#define SOCKET_FILE "/tmp/zt.sock"
+#define SOCKET_FILE "/var/run/zt.sock"
 
 static void zt_fill_hostent(const char *name, int af, struct hostent *result, char *ip, int type);
 

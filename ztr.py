@@ -2,12 +2,15 @@
 import socket, sys, argparse, os, daemon, select
 from daemon import pidfile
 
-sock_file='/tmp/zt.sock' 
+sock_file='/var/run/zt.sock' 
 
 def relay(query, server, port):
 	sock=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-	sock.connect((server,port));
+	try:
+		sock.connect((server,port));
+	except:
+		return b''
 	sock.sendall(query)
 	data=sock.recv(1000)
 	#sock.sendall(b'')
@@ -19,9 +22,9 @@ def processMessage(sock,server,port,debug):
 	s, c = sock.accept()
 	query = s.recv(1024)
 	response=relay(query,server,port)
+	print('response',response)
 	s.sendall(response)
 	s.shutdown(socket.SHUT_RDWR)
-	#s.sendall(b'')
 	s.close()
 
 def zt_server(server, port, debug):
@@ -43,11 +46,13 @@ def zt_server(server, port, debug):
 			if debug:
 				print('KeyboardInterrupt')
 			sock.close()
-			os.remove(sock_file)
+			if os.path.exists(sock_file):
+				os.remove(sock_file)
 			break;
 		except SystemExit:
 			sock.close();
-			os.remove(sock_file)
+			if os.path.exists(sock_file):
+				os.remove(sock_file)
 			return
 		except:
 			reason=str(sys.exc_info()[1])
@@ -86,7 +91,7 @@ if __name__ == "__main__":
 	parser.add_argument('-P', '--port',type=int, default=9999)
 	args = parser.parse_args()
 	if args.version:
-		print('version: 20190002')
+		print('version: 20190003')
 		sys.exit(0)
 	if args.bind == None:
 		print('Bind Address not provided')
@@ -98,5 +103,6 @@ if __name__ == "__main__":
 		zt_server(args.bind, args.port, args.debug)
 	else:
 		run(args.pid_file, args.bind, args.port,args.debug)
-		os.remove(sock_file)
-		sys.exit(1)
+		if os.path.exists(sock_file):
+			os.remove(sock_file)
+		sys.exit(0)

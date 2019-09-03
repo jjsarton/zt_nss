@@ -38,7 +38,6 @@ def read_config(conf_file):
 	url = 'https://my.zerotier.com/api/network/'+net+'/member'
 	return url, headers
 
-
 def searchName(list, name,noact):
 	str = name.split('.')
 	num=len(str)
@@ -210,8 +209,6 @@ if __name__ == "__main__":
 		sys.exit(1)
 	url, headers = read_config(conf_file)
 	noact=args.all;
-	conf.url=url
-	conf.headers=headers
 	if args.foreground == True:
 		zt_server(url,headers,noact,args.timeout,args.bind,args.port,args.debug)
 	else:
